@@ -1,22 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db'); // Asegúrate de que la ruta a tu archivo de configuración de la base de datos es correcta
+const supabase = require('../db');
 
 // Obtener todas las categorías
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await db.query('SELECT * FROM categorias');
-        // Ajustar los nombres de las propiedades para que coincidan con lo que espera el frontend
-        const categorias = rows.map(row => ({
-            idCategoria: row.id,
-            nombreCategoria: row.nombre,
-            descripcionCategoria: row.descripcion
-        }));
-        console.log('Categorías recuperadas:', categorias); // Mensaje de depuración
+        const { data: categorias, error } = await supabase
+            .from('categorias')
+            .select('*');
+        if (error) throw error;
         res.json(categorias);
-    } catch (err) {
-        console.error('Error al recuperar categorías:', err);
-        res.status(500).send(err.message);
+    } catch (error) {
+        console.error('Error al recuperar categorías:', error);
+        res.status(500).send(error.message);
     }
 });
 
@@ -24,54 +20,49 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const [rows] = await db.query('SELECT * FROM categorias WHERE id = ?', [id]);
-        if (rows.length > 0) {
-            const categoria = {
-                idCategoria: rows[0].id,
-                nombreCategoria: rows[0].nombre,
-                descripcionCategoria: rows[0].descripcion
-            };
-            console.log('Categoría recuperada:', categoria); // Mensaje de depuración
-            res.json(categoria);
-        } else {
-            console.log('Categoría no encontrada para ID:', id); // Mensaje de depuración
-            res.status(404).send('Categoría no encontrada');
-        }
-    } catch (err) {
-        console.error('Error al recuperar la categoría:', err);
-        res.status(500).send(err.message);
+        const { data: categoria, error } = await supabase
+            .from('categorias')
+            .select('*')
+            .eq('id', id)
+            .single();
+        if (error) throw error;
+        res.json(categoria);
+    } catch (error) {
+        console.error('Error al recuperar la categoría:', error);
+        res.status(500).send(error.message);
     }
 });
 
 // Crear una nueva categoría
 router.post('/', async (req, res) => {
-    const { nombreCategoria, descripcionCategoria } = req.body;
+    const { nombre, descripcion } = req.body;
     try {
-        const [result] = await db.query('INSERT INTO categorias (nombre, descripcion) VALUES (?, ?)', [nombreCategoria, descripcionCategoria]);
-        const nuevaCategoria = {
-            idCategoria: result.insertId,
-            nombreCategoria,
-            descripcionCategoria
-        };
-        console.log('Categoría creada con ID:', nuevaCategoria.idCategoria); // Mensaje de depuración
+        const { data: nuevaCategoria, error } = await supabase
+            .from('categorias')
+            .insert([{ nombre, descripcion }])
+            .single();
+        if (error) throw error;
         res.json(nuevaCategoria);
-    } catch (err) {
-        console.error('Error al crear la categoría:', err);
-        res.status(500).send(err.message);
+    } catch (error) {
+        console.error('Error al crear la categoría:', error);
+        res.status(500).send(error.message);
     }
 });
 
 // Actualizar una categoría
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { nombreCategoria, descripcionCategoria } = req.body;
+    const { nombre, descripcion } = req.body;
     try {
-        await db.query('UPDATE categorias SET nombre = ?, descripcion = ? WHERE id = ?', [nombreCategoria, descripcionCategoria, id]);
-        console.log('Categoría actualizada para ID:', id); // Mensaje de depuración
+        const { error } = await supabase
+            .from('categorias')
+            .update({ nombre, descripcion })
+            .eq('id', id);
+        if (error) throw error;
         res.status(204).send();
-    } catch (err) {
-        console.error('Error al actualizar la categoría:', err);
-        res.status(500).send(err.message);
+    } catch (error) {
+        console.error('Error al actualizar la categoría:', error);
+        res.status(500).send(error.message);
     }
 });
 
@@ -79,12 +70,15 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        await db.query('DELETE FROM categorias WHERE id = ?', [id]);
-        console.log('Categoría eliminada para ID:', id); // Mensaje de depuración
+        const { error } = await supabase
+            .from('categorias')
+            .delete()
+            .eq('id', id);
+        if (error) throw error;
         res.status(204).send();
-    } catch (err) {
-        console.error('Error al eliminar la categoría:', err);
-        res.status(500).send(err.message);
+    } catch (error) {
+        console.error('Error al eliminar la categoría:', error);
+        res.status(500).send(error.message);
     }
 });
 
