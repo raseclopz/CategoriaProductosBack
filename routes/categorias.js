@@ -35,11 +35,12 @@ router.get('/:id', async (req, res) => {
 
 // Crear una nueva categoría
 router.post('/', async (req, res) => {
-    const { nombre, descripcion } = req.body;
+    const { nombreCategoria, descripcionCategoria } = req.body;
+    console.log('Datos recibidos en el backend:', req.body); // Agregar mensaje de depuración
     try {
         const { data: nuevaCategoria, error } = await supabase
             .from('categorias')
-            .insert([{ nombre, descripcion }])
+            .insert([{ nombre: nombreCategoria, descripcion: descripcionCategoria }])
             .single();
         if (error) throw error;
         res.json(nuevaCategoria);
@@ -52,11 +53,11 @@ router.post('/', async (req, res) => {
 // Actualizar una categoría
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
-    const { nombre, descripcion } = req.body;
+    const { nombreCategoria, descripcionCategoria } = req.body;
     try {
         const { error } = await supabase
             .from('categorias')
-            .update({ nombre, descripcion })
+            .update({ nombre: nombreCategoria, descripcion: descripcionCategoria })
             .eq('id', id);
         if (error) throw error;
         res.status(204).send();
