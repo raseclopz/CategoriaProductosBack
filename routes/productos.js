@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../db');
+const supabase = require('../db'); // Ajusta la ruta según tu estructura de proyecto
 
 // Obtener todos los productos
 router.get('/', async (req, res) => {
@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
         if (error) throw error;
         res.json(productos);
     } catch (error) {
-        console.error('Error al recuperar productos:', error);
+        console.error('Error al obtener los productos:', error);
         res.status(500).send(error.message);
     }
 });
@@ -28,18 +28,19 @@ router.get('/:id', async (req, res) => {
         if (error) throw error;
         res.json(producto);
     } catch (error) {
-        console.error('Error al recuperar el producto:', error);
+        console.error('Error al obtener el producto:', error);
         res.status(500).send(error.message);
     }
 });
 
 // Crear un nuevo producto
 router.post('/', async (req, res) => {
-    const { nombre, descripcion, precio, categoriaId } = req.body;
+    console.log(req.body)
+    const { nombreProducto: nombre, descripcionProducto: descripcion, precioProducto: precio, categoriaId: categoriaId } = req.body;
     try {
         const { data: nuevoProducto, error } = await supabase
             .from('productos')
-            .insert([{ nombre, descripcion, precio, categoriaId }])
+            .insert([{ nombre, descripcion, precio, categoriaid: categoriaId }])
             .single();
         if (error) throw error;
         res.json(nuevoProducto);
@@ -54,23 +55,24 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { nombre, descripcion, precio, categoriaId } = req.body;
     try {
-        const { error } = await supabase
+        const { data: productoActualizado, error } = await supabase
             .from('productos')
-            .update({ nombre, descripcion, precio, categoriaId })
-            .eq('id', id);
+            .update({ nombre, descripcion, precio, categoriaid: categoriaId })
+            .eq('id', id)
+            .single();
         if (error) throw error;
-        res.status(204).send();
+        res.json(productoActualizado);
     } catch (error) {
         console.error('Error al actualizar el producto:', error);
         res.status(500).send(error.message);
     }
 });
 
-// Eliminar un producto
+// Eliminar un producto por ID
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('productos')
             .delete()
             .eq('id', id);
