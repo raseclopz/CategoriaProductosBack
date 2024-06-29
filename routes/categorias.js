@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../db');
+const supabase = require('../db'); // Ajusta la ruta según tu estructura de proyecto
 
 // Obtener todas las categorías
 router.get('/', async (req, res) => {
@@ -36,7 +36,7 @@ router.get('/:id', async (req, res) => {
 // Crear una nueva categoría
 router.post('/', async (req, res) => {
     const { nombreCategoria, descripcionCategoria } = req.body;
-    console.log('Datos recibidos en el backend:', req.body); // Agregar mensaje de depuración
+    console.log('Datos recibidos en el backend:', req.body);
     try {
         const { data: nuevaCategoria, error } = await supabase
             .from('categorias')

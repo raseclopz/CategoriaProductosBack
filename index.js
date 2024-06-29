@@ -1,17 +1,14 @@
 const express = require('express');
-const app = express();
-const categoriasRoutes = require('./routes/categorias');
-const productosRoutes = require('./routes/productos');
-const bodyParser = require('body-parser');
 const cors = require('cors');
+const categoriasRouter = require('./routes/categorias'); // Ajusta la ruta según tu estructura de proyecto
+
+const app = express();
 
 app.use(cors());
-app.use(bodyParser.json());
-
-app.use('/apiCategorias/categorias', categoriasRoutes);
-app.use('/apiProductos/productos', productosRoutes);
+app.use(express.json());
+app.use('/api/categorias', categoriasRouter); // Asegúrate de que la ruta base es '/api/categorias'
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
