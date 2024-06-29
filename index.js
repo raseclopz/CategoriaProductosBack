@@ -6,7 +6,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use('/api/categorias', categoriasRouter); // Asegúrate de que la ruta base es '/api/categorias'
+app.use('/api/categorias', categoriasRouter); // Ruta base para categorías
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
